@@ -1,33 +1,72 @@
-<div class="my-container">
-  <div class="card-container">
-    <div class="card-header">
-      <div class="card-header-left">
-        <h3>29(param)</h3>
-        <h3>30(param)</h3>
-        <h3>31(param)</h3>
+<div class="main-container">
+  <div class="weather-show">
+    <h1>Weather Forecast</h1>
+    <div class="icon-weather">
+      <img src="{{ iconURL }}" alt="{{ desc }}" />
+    </div>
+    <div class="weather-city">
+      <span>{{ temp }}&deg;C</span>
+      <div class="time-city">
+        <h3>{{ nameCity }}, {{ nameCountry }}</h3>
+        <p>{{ myDate | date : "mediumDate" }}</p>
       </div>
-      <div class="card-header-right">
-        <select>
-          <option>{{ city }}</option>
+      <p>{{ desc }}</p>
+    </div>
+  </div>
+
+  <div class="weather-details">
+    <div class="weather-items">
+      <div class="weather-items-header">
+        <h2>Choose your cities :</h2>
+        <!-- //default choose city of selected// -->
+        <select [(ngModel)]="selected" (change)="handleClick($event)">
+          <option *ngFor="let city of cities" [value]="city">
+            {{ city }}
+          </option>
         </select>
       </div>
-    </div>
 
-    <div class="card-body">
-      <div class="card-body-img">
-        <img src="{{ iconURL }}" alt="" />
-        <p class="card-body-img-text">{{ desc }}</p>
-      </div>
-      <div class="card-body-temp">
-        <p class="card-text">
-          hightTemp: <span>{{ hightTemp }}&deg;C</span>
-        </p>
-        <p class="card-text">
-          lowTemp:<span>{{ lowTemp }}&deg;C</span>
-        </p>
-        <p class="card-text">
-          humidity:<span>{{ humidity }}%</span>
-        </p>
+      <div class="weather-items-body">
+        <div class="top">
+          <h2>Current weather</h2>
+          <div class="weather-items-current">
+            <p>
+              Temp Max:
+              <span class="red">{{ tempMax }}&deg;C.</span>
+            </p>
+            <p>
+              Temp Min:
+              <span class="blue">{{ tempMin }}&deg;C.</span>
+            </p>
+            <p>
+              Humidity: <span>{{ humidity }}%.</span>
+            </p>
+            <p>
+              Wind: <span>{{ windSpeed }}kph.</span>
+            </p>
+          </div>
+        </div>
+
+        <div class="bot">
+          <h3>Weather Forecast next 5 days</h3>
+          <div
+            class="weather-items-forecast"
+            *ngFor="let forecast of weatherData"
+          >
+            <div class="weather-items-days">
+              <p>{{ forecast.dt_txt | date : "EEEE" }}</p>
+              <img
+                src="http://openweathermap.org/img/wn/{{
+                  forecast.weather[0].icon
+                }}@2x.png"
+                alt="{{ forecast.weather[0].description }}"
+              />
+              <p>{{ forecast.weather[0].description }}</p>
+              <p class="red">{{ forecast.main.temp_max }}&deg;C</p>
+              <p class="blue">{{ forecast.main.temp_min }}&deg;C</p>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
