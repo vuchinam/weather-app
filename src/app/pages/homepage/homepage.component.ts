@@ -1,5 +1,5 @@
-import { Component, OnInit } from '@angular/core';
-import { pluck } from 'rxjs/internal/operators/pluck';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { BehaviorSubject, Subscription, switchMap } from 'rxjs';
 
 import { WeatherService } from 'src/app/weather.service';
 
@@ -8,73 +8,85 @@ import { WeatherService } from 'src/app/weather.service';
   templateUrl: './homepage.component.html',
   styleUrls: ['./homepage.component.scss'],
 })
-export class HomepageComponent implements OnInit {
-  res: any;
-  myDate = new Date();
-  iconURL: string = '';
-  weatherData: any = [];
-  desc: any = '';
-  temp: any = '';
-  tempMax: number = 0;
-  tempMin: number = 0;
-  humidity: number = 0;
-  windSpeed: number = 0;
-  nameCity: string = '';
-  nameCountry: string = '';
+export class HomepageComponent implements OnInit, OnDestroy {
+  cityUpdater = new BehaviorSubject('Japan');
+  subscription!: Subscription;
+  data!: any;
+
   cities: any = ['Japan', 'Korea', 'China', 'Canada', 'Thailand'];
 
-  selected = 'Japan';
-
-  constructor(private weatherService: WeatherService) {}
+  constructor(private readonly weatherService: WeatherService) {}
 
   ngOnInit(): void {
-    this.getWeather();
-    // get day weather
-    this.weatherService
-      .getWeather()
-      .pipe(pluck('list'))
-      .subscribe((data) => {
-        this.futureForecast(data);
+    this.subscription = this.cityUpdater
+      .pipe(
+        switchMap((selectedCity: string) => {
+          console.log('emit new data from Subject selectedCity:', selectedCity);
+          const queryParams = { units: 'metric', q: selectedCity };
+          console.log('queryParams', queryParams);
+          return this.weatherService.getWeather(queryParams);
+        })
+      )
+      .subscribe((res: any) => {
+        console.log('response from API:', res);
+        this.getWeatherResponse(res);
       });
-    this.handleClick(this.cities);
-  }
-
-  //vòng lặp lấy ra từng ngày
-  futureForecast(data: any): void {
-    for (let i = 0; i < data.length; i = i + 8) {
-      this.weatherData.push(data[i]);
-    }
-  }
-
-  getWeather(): void {
-    this.weatherService.getWeather().subscribe((data) => {
-      this.res = data;
-
-      if (data && data.list) {
-        this.myDate = this.res.list[0].dt_txt;
-        this.iconURL =
-          'http://openweathermap.org/img/wn/' +
-          this.res.list[0].weather[0].icon +
-          '@2x.png';
-        this.desc = this.res.list[0].weather[0].description;
-
-        this.temp = this.res.list[0].main.temp;
-        this.tempMax = this.res.list[0].main.temp_max;
-        this.tempMin = this.res.list[0].main.temp_min;
-
-        this.humidity = this.res.list[0].main.humidity;
-        this.windSpeed = this.res.list[0].wind.speed;
-
-        this.nameCity = this.res.city.name;
-        this.nameCountry = this.res.city.country;
-      }
-    });
   }
 
   handleClick(e: any) {
-    let cities = Array.from(this.cities);
-    cities = e.target?.value;
+    const selectedCity = e.target.value;
+    console.log('handleClick', 'selectedCity', selectedCity);
+    this.cityUpdater.next(selectedCity);
+  }
 
-    this.weatherService.updateCityName(cities);
+  ngOnDestroy(): void {
+    this.subscription.unsubscribe();
+  }
+
+  getWeatherResponse(response: any): void {
+    if (response?.list?.length) {
+      const { city, cnt, cod, list, message } = response;
+      const {
+        dt_txt,
+        weather,
+        main: { temp, temp_max, temp_min, humidity },
+        wind,
+      } = list[0];
+
+      const weatherNext5Days = this.getForecastNext5Days(list).slice(0, 5);
+
+      this.data = {
+        myDate: dt_txt,
+        iconURL: `http://openweathermap.org/img/wn/${weather[0].icon}@2x.png`,
+        desc: weather[0].description,
+        temp,
+        tempMax: temp_max,
+        tempMin: temp_min,
+        humidity,
+        windSpeed: wind.speed,
+        nameCity: city.name,
+        nameCountry: city.country,
+        weatherData: weatherNext5Days,
+      };
+    }
+  }
+
+  private getForecastNext5Days(forecastList: any[]): any[] {
+    const result: any[] = [];
+    forecastList.forEach((forecast, i) => {
+      const nextForecast = forecastList[i + 1];
+      const prevDay = new Date(forecast.dt_txt);
+      const nextDay = new Date(nextForecast?.dt_txt);
+      // Checking if the next day in list which is the next day of the current checking day
+      if (
+        nextForecast &&
+        nextDay.getDate() === prevDay.getDate() + 1 &&
+        nextDay.getHours() === 0
+      ) {
+        result.push(nextForecast);
+      }
+    });
+    console.log('getForecastNext5Days', result);
+    return result;
   }
 }
