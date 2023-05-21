@@ -47,26 +47,26 @@
           </div>
         </div>
 
-        <!-- <div class="bot">
+        <div class="bot">
           <h3>Weather Forecast next 5 days</h3>
           <div
             class="weather-items-forecast"
             *ngFor="let forecast of data?.weatherData"
           >
             <div class="weather-items-days">
-              <p>{{ forecast.dt_txt | date : "EEEE" }}</p>
+              <p>{{ forecast?.dt_txt | date : "EEEE" }}</p>
               <img
                 src="http://openweathermap.org/img/wn/{{
-                  forecast.weather[0].icon
+                  forecast?.weather[0].icon
                 }}@2x.png"
-                alt="{{ forecast.weather[0].description }}"
+                alt="{{ forecast?.weather[0].description }}"
               />
-              <p>{{ forecast.weather[0].description }}</p>
-              <p class="red">{{ forecast.main.temp_max }}&deg;C</p>
-              <p class="blue">{{ forecast.main.temp_min }}&deg;C</p>
+              <p>{{ forecast?.weather[0].description }}</p>
+              <p class="red">{{ forecast?.main.temp_max }}&deg;C</p>
+              <p class="blue">{{ forecast?.main.temp_min }}&deg;C</p>
             </div>
           </div>
-        </div> -->
+        </div>
       </div>
     </div>
   </div>

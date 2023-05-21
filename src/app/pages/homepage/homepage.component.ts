@@ -72,6 +72,8 @@ export class HomepageComponent implements OnInit, OnDestroy {
         main: { temp, temp_max, temp_min, humidity },
         wind,
       } = list[0];
+      const weatherNext5Days = this.getForecastNext5Days(list).slice(1, 6);
+
       this.data = {
         myDate: dt_txt,
         iconURL: `http://openweathermap.org/img/wn/${weather[0].icon}@2x.png`,
@@ -83,6 +85,7 @@ export class HomepageComponent implements OnInit, OnDestroy {
         windSpeed: wind.speed,
         nameCity: city.name,
         nameCountry: city.country,
+        weatherData: weatherNext5Days,
       };
     }
     // this.res = data;
@@ -104,5 +107,24 @@ export class HomepageComponent implements OnInit, OnDestroy {
 
     //   this.nameCity = this.res.city.name;
     //   this.nameCountry = this.res.city.country;
+  }
+
+  private getForecastNext5Days(forecastList: any[]): any[] {
+    const result: any[] = [];
+    forecastList.forEach((forecast, i) => {
+      const nextForecast = forecastList[i + 1];
+      const prevDay = new Date(forecast.dt_txt);
+      const nextDay = new Date(nextForecast?.dt_txt);
+      // Checking if the next day in list which is the next day of the current checking day
+      if (
+        nextForecast &&
+        nextDay.getDate() === prevDay.getDate() + 1 &&
+        nextDay.getHours() === 0
+      ) {
+        result.push(nextForecast);
+      }
+    });
+    console.log('getForecastNext5Days', result);
+    return result;
   }
 }
