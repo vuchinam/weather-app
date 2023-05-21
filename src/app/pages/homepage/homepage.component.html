@@ -2,15 +2,15 @@
   <div class="weather-show">
     <h1>Weather Forecast</h1>
     <div class="icon-weather">
-      <img src="{{ iconURL }}" alt="{{ desc }}" />
+      <img src="{{ data?.iconURL }}" alt="{{ data?.desc }}" />
     </div>
     <div class="weather-city">
-      <span>{{ temp }}&deg;C</span>
+      <span>{{ data?.temp }}&deg;C</span>
       <div class="time-city">
-        <h3>{{ nameCity }}, {{ nameCountry }}</h3>
-        <p>{{ myDate | date : "mediumDate" }}</p>
+        <h3>{{ data?.nameCity }}, {{ data?.nameCountry }}</h3>
+        <p>{{ data?.myDate | date : "mediumDate" }}</p>
       </div>
-      <p>{{ desc }}</p>
+      <p>{{ data?.desc }}</p>
     </div>
   </div>
 
@@ -18,8 +18,8 @@
     <div class="weather-items">
       <div class="weather-items-header">
         <h2>Choose your cities :</h2>
-        <!-- //default choose city of selected// -->
-        <select [(ngModel)]="selected" (change)="handleClick($event)">
+        <!-- default choose city of selected// -->
+        <select (change)="handleClick($event)">
           <option *ngFor="let city of cities" [value]="city">
             {{ city }}
           </option>
@@ -32,17 +32,17 @@
           <div class="weather-items-current">
             <p>
               Temp Max:
-              <span class="red">{{ tempMax }}&deg;C.</span>
+              <span class="red">{{ data?.tempMax }}&deg;C.</span>
             </p>
             <p>
               Temp Min:
-              <span class="blue">{{ tempMin }}&deg;C.</span>
+              <span class="blue">{{ data?.tempMin }}&deg;C.</span>
             </p>
             <p>
-              Humidity: <span>{{ humidity }}%.</span>
+              Humidity: <span>{{ data?.humidity }}%.</span>
             </p>
             <p>
-              Wind: <span>{{ windSpeed }}kph.</span>
+              Wind: <span>{{ data?.windSpeed }}kph.</span>
             </p>
           </div>
         </div>
@@ -51,19 +51,19 @@
           <h3>Weather Forecast next 5 days</h3>
           <div
             class="weather-items-forecast"
-            *ngFor="let forecast of weatherData"
+            *ngFor="let forecast of data?.weatherData"
           >
             <div class="weather-items-days">
-              <p>{{ forecast.dt_txt | date : "EEEE" }}</p>
+              <p>{{ forecast?.dt_txt | date : "EEEE" }}</p>
               <img
                 src="http://openweathermap.org/img/wn/{{
-                  forecast.weather[0].icon
+                  forecast?.weather[0].icon
                 }}@2x.png"
-                alt="{{ forecast.weather[0].description }}"
+                alt="{{ forecast?.weather[0].description }}"
               />
-              <p>{{ forecast.weather[0].description }}</p>
-              <p class="red">{{ forecast.main.temp_max }}&deg;C</p>
-              <p class="blue">{{ forecast.main.temp_min }}&deg;C</p>
+              <p>{{ forecast?.weather[0].description }}</p>
+              <p class="red">{{ forecast?.main.temp_max }}&deg;C</p>
+              <p class="blue">{{ forecast?.main.temp_min }}&deg;C</p>
             </div>
           </div>
         </div>
